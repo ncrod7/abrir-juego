@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Abrir juego</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { display: grid; place-content: center; min-height: 100vh; margin: 0; text-align: center; gap: 1rem; }
+    a { display: inline-block; padding: .75rem 1.25rem; border: 1px solid; border-radius: .5rem; }
+  </style>
+</head>
+<body>
+  <p id="status" role="status">Enlace no válido.</p>
+  <p><a id="app" hidden></a> <a id="web" hidden>Ver en navegador</a></p>
+  <script>
+    const stores = {
+      steam: { name: "Steam", id: /^\d+$/, app: id => `steam://store/${id}`, web: id => `https://store.steampowered.com/app/${id}` },
+      epic: { name: "Epic", id: /^[a-z0-9-]+(\/[a-z0-9-]+)?$/i, app: id => `com.epicgames.launcher://store/es-ES/p/${id}`, web: id => `https://store.epicgames.com/es-ES/p/${id}` },
+    };
+    const params = new URLSearchParams(location.search);
+    const key = params.get("s");
+    const id = params.get("id") ?? "";
+    const store = Object.hasOwn(stores, key) ? stores[key] : null;
+    if (store && store.id.test(id)) {
+      const app = document.getElementById("app");
+      const web = document.getElementById("web");
+      app.href = store.app(id);
+      app.textContent = `Abrir en ${store.name}`;
+      web.href = store.web(id);
+      app.hidden = web.hidden = false;
+      document.getElementById("status").textContent = `Abriendo ${store.name}…`;
+      location.href = app.href;
+    }
+  </script>
+</body>
+</html>
